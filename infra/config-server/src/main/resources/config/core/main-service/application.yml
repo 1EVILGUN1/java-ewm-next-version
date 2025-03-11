@@ -1,0 +1,20 @@
+server:
+  port: 0
+stats:
+  server:
+    url: http://stats-server:9090
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/ewm_main
+    username: test
+    password: test
