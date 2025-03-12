@@ -5,10 +5,6 @@ import ewm.dto.EndpointHitDTO;
 import ewm.dto.StatsRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -64,14 +60,5 @@ public class StatsClient extends BaseClient {
 
     private void appendParameter(StringBuilder builder, String key, Object value) {
         builder.append(key).append("=").append(value);
-    }
-}
-
-@Configuration
-class RestTemplateConfig {
-    @Bean
-    @LoadBalanced
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
     }
 }
