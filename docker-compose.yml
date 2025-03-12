@@ -61,6 +61,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=9090
     healthcheck:
       test: "curl --fail --silent localhost:9090/actuator/health | grep UP || exit 1"
       timeout: 5s

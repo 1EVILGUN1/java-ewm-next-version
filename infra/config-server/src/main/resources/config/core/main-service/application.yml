@@ -2,7 +2,7 @@ server:
   port: 0
 stats:
   server:
-    url: http://stats-server:9090
+    url: http://stats-server
 spring:
   jpa:
     hibernate:
