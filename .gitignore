@@ -7,6 +7,7 @@
 *.zip
 *.tar.gz
 *.rar
+*.DS_Store
 hs_err_pid*
 replay_pid*
 out/
@@ -20,3 +21,4 @@ target/
 *.iws
 *.iml
 *.ipr
+*.DS_Store
