@@ -1,6 +1,6 @@
 package ewm.dto.event;
 
-import ewm.model.request.RequestStatus;
+import ewm.enums.RequestStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
