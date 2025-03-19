@@ -18,7 +18,7 @@ spring:
         - id: subscription-service_route
           uri: lb://subscription-service
           predicates:
-            - Path= /users/*/events/*/subscriptions, /users/*/events/*/subscriptions/*, /events/*/subscriptions, /events/*/subscriptions/*
+            - Path=/users/*/events/*/subscriptions, /users/*/events/*/subscriptions/*, /events/*/subscriptions, /events/*/subscriptions/*, /users/*/subscriptions/**, /users/*/black-list/**, /users/*/subscriptions/events
 
 server:
   port: 8080

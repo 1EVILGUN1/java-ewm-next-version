@@ -1,9 +1,9 @@
 package ewm.controller;
 
+import ewm.dto.event.EventDto;
 import ewm.dto.subscription.SubscriptionDto;
 import ewm.error.exception.ConflictException;
 import ewm.model.BlackList;
-import ewm.model.Event;
 import ewm.model.Subscriber;
 import ewm.service.SubscriptionService;
 import jakarta.validation.constraints.NotNull;
@@ -81,9 +81,9 @@ public class SubscriptionController {
     }
 
     @GetMapping("/subscriptions/events")
-    public List<Event> getEventsSubscriptions(@PathVariable("userId") @Positive @NotNull long userId) {
+    public List<EventDto> getEventsSubscriptions(@PathVariable("userId") @Positive @NotNull long userId) {
         log.info("GET Запрос на получение списка мероприятий пользователей на которых подписан человек с ID {} ", userId);
-        List<Event> eventShortResponseDtos = service.getEvents(userId);
+        List<EventDto> eventShortResponseDtos = service.getEvents(userId);
         log.info("GET Запрос на получение списка мероприятий выполнен {} ", eventShortResponseDtos);
         return eventShortResponseDtos;
     }

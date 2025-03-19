@@ -1,9 +1,9 @@
 package ewm.service;
 
 
+import ewm.dto.event.EventDto;
 import ewm.dto.subscription.SubscriptionDto;
 import ewm.model.BlackList;
-import ewm.model.Event;
 import ewm.model.Subscriber;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public interface SubscriptionService {
 
     SubscriptionDto getBlacklists(long userId);
 
-    List<Event> getEvents(long userId);
+    List<EventDto> getEvents(long userId);
 
     void removeFromBlackList(long userId, long blackListId);
 }
