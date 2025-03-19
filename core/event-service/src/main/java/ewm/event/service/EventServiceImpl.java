@@ -232,11 +232,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event getEventByInitiator(Long userId) {
+    public EventDto getEventByInitiator(Long userId) {
         log.info("Получение события по инициатору с ID: {}", userId);
         Event result = repository.findByInitiatorId(userId);
         log.info("Событие для инициатора с ID {} успешно получено", userId);
-        return result;
+        return mapper.mapEventToEventDto(result);
     }
 
     public EventDto updateConfirmRequests(EventDto eventDto) {

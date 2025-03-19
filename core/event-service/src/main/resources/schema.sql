@@ -27,7 +27,7 @@ CREATE TABLE if not exists events
     title              varchar(255)                                                                                                             NULL,
     CONSTRAINT events_pkey PRIMARY KEY (id),
     CONSTRAINT events_state_check CHECK (((state >= 0) AND (state <= 2))),
-    CONSTRAINT fko6mla8j1p5bokt4dxrlmgwc28 FOREIGN KEY (category_id) REFERENCES categories (id)
+    CONSTRAINT fk_events_to_categories FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
 CREATE TABLE if not exists compilations
@@ -42,6 +42,6 @@ CREATE TABLE if not exists compilations_events
 (
     event_id int8 NOT NULL,
     id       int8 NOT NULL,
-    CONSTRAINT fk659jbpv3f0lpfl22817evij91 FOREIGN KEY (event_id) REFERENCES events (id),
-    CONSTRAINT fko0b564ve7s4586ljcjvhoqg3h FOREIGN KEY (id) REFERENCES compilations (id)
+    CONSTRAINT fk_compilations_events_to_events FOREIGN KEY (event_id) REFERENCES events (id),
+    CONSTRAINT fk_compilations_events_to_compilations FOREIGN KEY (id) REFERENCES compilations (id)
 );

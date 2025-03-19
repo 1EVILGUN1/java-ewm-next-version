@@ -2,7 +2,6 @@ package ewm.event.service;
 
 import ewm.dto.event.*;
 import ewm.dto.request.RequestDto;
-import ewm.model.Event;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -33,5 +32,5 @@ public interface EventService {
 
     EventDto updateConfirmRequests(EventDto eventDto);
 
-    Event getEventByInitiator(Long userId);
+    EventDto getEventByInitiator(Long userId);
 }

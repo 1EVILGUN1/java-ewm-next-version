@@ -1,7 +1,6 @@
 package ewm.client;
 
 import ewm.dto.event.EventDto;
-import ewm.model.Event;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +16,6 @@ public interface EventClient {
     EventDto updateConfirmRequests(@PathVariable Long eventId, @RequestBody EventDto event);
 
     @GetMapping("/event-subscription/{userId}")
-    Event getEventByInitiatorId(@PathVariable Long userId);
+    EventDto getEventByInitiatorId(@PathVariable Long userId);
 
 }

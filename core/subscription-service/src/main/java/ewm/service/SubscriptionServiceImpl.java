@@ -4,15 +4,13 @@ import ewm.client.EventClient;
 import ewm.client.UserClient;
 import ewm.dto.event.EventDto;
 import ewm.dto.subscription.SubscriptionDto;
+import ewm.dto.user.UserDto;
 import ewm.enums.EventState;
 import ewm.error.exception.ConflictException;
 import ewm.error.exception.NotFoundException;
-import ewm.mapper.EventMapper;
 import ewm.mapper.SubscriptionMapper;
-import ewm.mapper.UserMapper;
 import ewm.model.BlackList;
 import ewm.model.Subscriber;
-import ewm.model.User;
 import ewm.repository.BlackListRepository;
 import ewm.repository.SubscriberRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,13 +33,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Qualifier("ewm.client.EventClient")
     private final EventClient eventClient;
     private final SubscriptionMapper mapper;
-    private final EventMapper eventMapper;
 
     @Transactional
     @Override
     public void addSubscriber(Subscriber subscriber) {
         log.debug("Проверка пользователя на существование в БД {}", subscriber.getUserId());
-        User userSibscriber = getUser(subscriber.getUserId(), subscriber.getSubscriber());
+        UserDto userSibscriber = getUser(subscriber.getUserId(), subscriber.getSubscriber());
         checkUserBD(subscriber.getUserId(), subscriber.getSubscriber());
         log.info("POST Запрос Сохранение пользователя в подписчиках {} {}", userSibscriber.getName(), userSibscriber.getEmail());
         subscriberRepository.save(subscriber);
@@ -51,7 +48,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public void addBlacklist(BlackList blackList) {
         log.debug("Проверка пользователей на существование в БД {}", blackList.getUserId());
-        User blockUser = getUser(blackList.getUserId(), blackList.getBlackList());
+        UserDto blockUser = getUser(blackList.getUserId(), blackList.getBlackList());
         checkUserBD(blackList.getUserId(), blackList.getBlackList());
         log.info("POST Запрос Сохранение пользователя в черный список {} {}", blockUser.getName(), blockUser.getEmail());
         blackListRepository.save(blackList);
@@ -102,15 +99,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriberRepository.findAllByUserId(userId).stream()
                 .map(Subscriber::getSubscriber)
                 .map(eventClient::getEventByInitiatorId)
-                .map(eventMapper::mapEventToEventDto)
                 .filter(event -> event.getState().equals(EventState.PENDING.toString())
                                  || event.getState().equals(EventState.PUBLISHED.toString()))
                 .toList();
     }
 
-    private User getUser(long userId, long subscriberId) {
+    private UserDto getUser(long userId, long subscriberId) {
         userClient.getUserById(userId);
-        return UserMapper.mapToUser(userClient.getUserById(subscriberId));
+        return userClient.getUserById(subscriberId);
     }
 
     private void checkUserBD(long userId, long subscriberId) {

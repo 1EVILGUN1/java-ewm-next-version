@@ -3,7 +3,6 @@ package ewm.event.controller;
 import ewm.client.EventClient;
 import ewm.dto.event.EventDto;
 import ewm.event.service.EventService;
-import ewm.model.Event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -30,7 +29,7 @@ public class EventServiceController implements EventClient {
     }
 
     @Override
-    public Event getEventByInitiatorId(Long userId) {
+    public EventDto getEventByInitiatorId(Long userId) {
         return service.getEventByInitiator(userId);
     }
 }
