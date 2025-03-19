@@ -1,6 +1,6 @@
 package ewm.dto.event;
 
-import ewm.model.event.EventSort;
+import ewm.enums.EventSort;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;

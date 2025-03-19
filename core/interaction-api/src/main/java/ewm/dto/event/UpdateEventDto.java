@@ -2,7 +2,7 @@ package ewm.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import ewm.model.request.StateAction;
+import ewm.enums.StateAction;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 

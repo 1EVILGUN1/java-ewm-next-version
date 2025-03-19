@@ -1,6 +1,6 @@
 package ewm.dto.compilation;
 
-import ewm.model.event.Event;
+import ewm.dto.event.EventDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class CompilationDtoResponse {
     private Long id;
-    private List<Event> events;
+    private List<EventDto> events;
     private Boolean pinned;
     private String title;
 }
