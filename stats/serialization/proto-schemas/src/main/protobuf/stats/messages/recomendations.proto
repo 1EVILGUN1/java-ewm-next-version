@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package stats.message.recomendations;
+
+option java_multiple_files = true;
+option java_package = "ru.practicum.ewm.grpc.stats.recomendations";
+
+import "google/protobuf/timestamp.proto";
+
+
+message UserPredictionsRequestProto {
+    int64 user_id = 1; //идентификатор пользователя, для которого вычисляются рекомендации;
+    int64 max_results = 2; //ограничение количества мероприятий в результате выполнения запроса.
+}
+
+message SimilarEventsRequestProto{
+    int64 event_id =1; //идентификатор мероприятия, для которого нужно найти похожие мероприятия
+    int64 user_id = 2; //идентификатор пользователя, для которого из выдачи нужно исключить мероприятия, с которыми он уже взаимодействовал;
+    int64 max_results = 3; // ограничение количества мероприятий в результате выполнения запроса.
+}
+
+message InteractionsCountRequestProto {
+    repeated int64 event_id = 1; //идентификаторы мероприятий, для которых нужно вернуть сумму всех взаимодействий.
+
+}
+
+message RecommendedEventProto {
+    int64 event_id = 1; //идентификатор рекомендуемого мероприятия;
+    double score = 2; //либо предсказанная оценка, либо коэффициент сходства, либо сумма весов действий с указанным мероприятием
+}
