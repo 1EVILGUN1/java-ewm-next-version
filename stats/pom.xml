@@ -19,6 +19,7 @@
         <module>stats-server</module>
         <module>collector-service</module>
         <module>serialization</module>
+        <module>aggregator-service</module>
     </modules>
 
     <dependencies>
