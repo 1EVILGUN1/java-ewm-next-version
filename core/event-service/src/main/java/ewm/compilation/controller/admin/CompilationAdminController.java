@@ -23,7 +23,9 @@ public class CompilationAdminController {
     @PostMapping
     public CompilationDtoResponse createCompilation(@RequestBody @Valid CompilationDto compilationDto) {
         log.info("Добавить подборку Compilation --> {}", compilationDto);
-        return service.createCompilation(compilationDto);
+        CompilationDtoResponse result = service.createCompilation(compilationDto);
+        log.info("Подборка успешно добавлена с id: {}", result.getId());
+        return result;
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -31,12 +33,15 @@ public class CompilationAdminController {
     public void deleteCompilation(@PathVariable Long compId) {
         log.info("Удалить подборку по compId --> {}", compId);
         service.deleteCompilation(compId);
+        log.info("Подборка с id: {} успешно удалена", compId);
     }
 
     @PatchMapping("/{compId}")
     public CompilationDtoResponse updateCompilation(@PathVariable Long compId,
                                                     @RequestBody @Valid CompilationDtoUpdate compilationDto) {
         log.info("Обновить подборку по compId --> {}, подборка --> {}", compId, compilationDto);
-        return service.updateCompilation(compId, compilationDto);
+        CompilationDtoResponse result = service.updateCompilation(compId, compilationDto);
+        log.info("Подборка с id: {} успешно обновлена", compId);
+        return result;
     }
 }

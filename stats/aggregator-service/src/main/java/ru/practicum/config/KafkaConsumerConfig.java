@@ -9,8 +9,8 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import ru.practicum.serialize.UserActionDeserializer;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
+import ru.practicum.serialize.UserActionDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;

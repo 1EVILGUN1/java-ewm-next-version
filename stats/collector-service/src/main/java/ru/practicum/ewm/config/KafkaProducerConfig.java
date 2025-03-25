@@ -17,11 +17,11 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     @Value("${kafka.bootstrap-server}")
-    private  String bootstrapServer;
+    private String bootstrapServer;
     @Value("${kafka.client-id}")
-    private  String clientId;
+    private String clientId;
     @Value("${kafka.group-id}")
-    private  String groupId;
+    private String groupId;
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {

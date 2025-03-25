@@ -24,15 +24,21 @@ public class UserEventController {
     List<EventDto> getEvents(@PathVariable Long userId,
                              @RequestParam(name = "from", defaultValue = "0") Integer from,
                              @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        return service.getEvents(userId, from, size);
+        log.info("Получение событий для пользователя userId: {}, from: {}, size: {}", userId, from, size);
+        List<EventDto> result = service.getEvents(userId, from, size);
+        log.info("Успешно получено {} событий для пользователя userId: {}", result.size(), userId);
+        return result;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     UpdatedEventDto createEvent(@PathVariable Long userId,
                                 @Valid @RequestBody CreateEventDto event) {
+        log.info("Создание события для пользователя userId: {}, данные: {}", userId, event);
         EventValidate.eventDateValidate(event, log);
-        return service.createEvent(userId, event);
+        UpdatedEventDto result = service.createEvent(userId, event);
+        log.info("Событие успешно создано с id: {} для пользователя userId: {}", result.getId(), userId);
+        return result;
     }
 
     @GetMapping("/{id}")
@@ -41,22 +47,31 @@ public class UserEventController {
                       HttpServletRequest request) {
         String ip = request.getRemoteAddr();
         String uri = request.getRequestURI();
-        return service.getEventById(userId, id, ip, uri);
+        log.info("Получение события id: {} для пользователя userId: {}, IP: {}, URI: {}", id, userId, ip, uri);
+        EventDto result = service.getEventById(userId, id, ip, uri);
+        log.info("Событие id: {} успешно получено для пользователя userId: {}", id, userId);
+        return result;
     }
 
     @PatchMapping("/{eventId}")
     UpdatedEventDto updateEvent(@PathVariable Long userId,
                                 @PathVariable Long eventId,
                                 @Valid @RequestBody UpdateEventDto event) {
+        log.info("Обновление события eventId: {} для пользователя userId: {}, данные: {}", eventId, userId, event);
         EventValidate.updateEventDateValidate(event, log);
         EventValidate.textLengthValidate(event, log);
-        return service.updateEvent(userId, event, eventId);
+        UpdatedEventDto result = service.updateEvent(userId, event, eventId);
+        log.info("Событие eventId: {} успешно обновлено для пользователя userId: {}", eventId, userId);
+        return result;
     }
 
     @GetMapping("/{eventId}/requests")
     List<RequestDto> getEventRequests(@PathVariable Long userId,
                                       @PathVariable Long eventId) {
-        return service.getEventRequests(userId, eventId);
+        log.info("Получение запросов для события eventId: {} пользователя userId: {}", eventId, userId);
+        List<RequestDto> result = service.getEventRequests(userId, eventId);
+        log.info("Успешно получено {} запросов для события eventId: {} пользователя userId: {}", result.size(), eventId, userId);
+        return result;
     }
 
     @PatchMapping("/{eventId}/requests")
@@ -64,6 +79,9 @@ public class UserEventController {
                                                              @PathVariable Long eventId,
                                                              @RequestBody
                                                              @Valid EventRequestStatusUpdateRequest request) {
-        return service.changeStatusEventRequests(userId, eventId, request);
+        log.info("Изменение статуса запросов для события eventId: {} пользователя userId: {}, данные: {}", eventId, userId, request);
+        EventRequestStatusUpdateResult result = service.changeStatusEventRequests(userId, eventId, request);
+        log.info("Статус запросов для события eventId: {} пользователя userId: {} успешно изменён", eventId, userId);
+        return result;
     }
 }

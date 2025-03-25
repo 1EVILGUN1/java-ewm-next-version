@@ -8,13 +8,13 @@ import "google/protobuf/empty.proto";
 import "stats/messages/recomendations.proto";
 
 service RecommendationsController {
-    rpc GetRecommendationsForUser (stats.message.recomendations.UserPredictionsRequestProto)
-        returns (stream stats.message.recomendations.RecommendedEventProto);
+  rpc GetRecommendationsForUser (stats.message.recomendations.UserPredictionsRequestProto)
+      returns (stream stats.message.recomendations.RecommendedEventProto);
 
-    rpc GetSimilarEvents (stats.message.recomendations.SimilarEventsRequestProto)
-        returns (stream stats.message.recomendations.RecommendedEventProto);
+  rpc GetSimilarEvents (stats.message.recomendations.SimilarEventsRequestProto)
+      returns (stream stats.message.recomendations.RecommendedEventProto);
 
-    rpc GetInteractionsCount (stats.message.recomendations.InteractionsCountRequestProto)
-        returns (stream stats.message.recomendations.RecommendedEventProto);
+  rpc GetInteractionsCount (stats.message.recomendations.InteractionsCountRequestProto)
+      returns (stream stats.message.recomendations.RecommendedEventProto);
 
 }

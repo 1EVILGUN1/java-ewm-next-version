@@ -20,16 +20,25 @@ public class EventServiceController implements EventClient {
 
     @Override
     public EventDto getEventById(@PathVariable Long eventId) {
-        return service.publicGetEvent(eventId);
+        log.info("Получение события по id: {}", eventId);
+        EventDto result = service.publicGetEvent(eventId);
+        log.info("Событие с id: {} успешно получено", eventId);
+        return result;
     }
 
     @Override
     public EventDto updateConfirmRequests(@PathVariable Long eventId, @RequestBody EventDto event) {
-        return service.updateConfirmRequests(event);
+        log.info("Обновление подтверждения запросов для события eventId: {}, данные: {}", eventId, event);
+        EventDto result = service.updateConfirmRequests(event);
+        log.info("Подтверждение запросов для события eventId: {} успешно обновлено", eventId);
+        return result;
     }
 
     @Override
     public EventDto getEventByInitiatorId(Long userId) {
-        return service.getEventByInitiator(userId);
+        log.info("Получение события по инициатору userId: {}", userId);
+        EventDto result = service.getEventByInitiator(userId);
+        log.info("Событие для инициатора userId: {} успешно получено", userId);
+        return result;
     }
 }

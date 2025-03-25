@@ -33,22 +33,27 @@ public class CompilationServiceImpl implements CompilationService {
 	@Transactional
 	@Override
 	public CompilationDtoResponse createCompilation(CompilationDto compilationDto) {
+		log.info("Создание новой подборки с данными: {}", compilationDto);
 		List<Event> events = getEventsForCompilation(compilationDto.getEvents());
+		log.debug("Найдено {} событий для подборки", events.size());
 		Compilation compilation = Compilation.builder()
 				.events(events)
 				.title(compilationDto.getTitle())
 				.pinned(compilationDto.getPinned())
 				.build();
 		Compilation savedCompilation = repository.save(compilation);
+		log.info("Подборка успешно создана с id: {}", savedCompilation.getId());
 		return CompilationMapper.INSTANCE.compilationToCompilationDtoResponse(savedCompilation);
 	}
 
 	@Transactional
 	@Override
 	public CompilationDtoResponse updateCompilation(Long compId, CompilationDtoUpdate compilationDto) {
+		log.info("Обновление подборки с id: {} данными: {}", compId, compilationDto);
 		Compilation compilation = getCompFromRepo(compId);
 		updateCompilationFields(compilation, compilationDto);
 		Compilation updatedCompilation = repository.save(compilation);
+		log.info("Подборка с id: {} успешно обновлена", compId);
 		return CompilationMapper.INSTANCE.compilationToCompilationDtoResponse(updatedCompilation);
 	}
 
@@ -56,12 +61,15 @@ public class CompilationServiceImpl implements CompilationService {
 	@Transactional
 	@Override
 	public void deleteCompilation(Long compId) {
+		log.info("Удаление подборки с id: {}", compId);
 		Compilation compilation = getCompFromRepo(compId);
 		repository.deleteById(compId);
+		log.info("Подборка с id: {} успешно удалена", compId);
 	}
 
 	@Override
 	public List<CompilationDtoResponse> getCompilations(Boolean pinned, Integer from, Integer size) {
+		log.info("Получение списка подборок с параметрами: pinned={}, from={}, size={}", pinned, from, size);
 		Pageable pageRequest = PageRequest.of(from / size, size);
 		List<Compilation> compilations;
 		if (pinned != null) {
@@ -69,34 +77,51 @@ public class CompilationServiceImpl implements CompilationService {
 		} else {
 			compilations = repository.findAll(pageRequest).getContent();
 		}
+		log.info("Найдено {} подборок", compilations.size());
 		return CompilationMapper.INSTANCE.mapListCompilations(compilations);
 	}
 
 	@Override
 	public CompilationDtoResponse getCompilation(Long compId) {
+		log.info("Получение подборки с id: {}", compId);
 		Compilation compilation = getCompFromRepo(compId);
+		log.info("Подборка с id: {} успешно получена", compId);
 		return CompilationMapper.INSTANCE.compilationToCompilationDtoResponse(compilation);
 	}
 
 	// Вспомогательные методы
 	private Compilation getCompFromRepo(Long compId) {
+		log.debug("Поиск подборки с id: {}", compId);
 		return repository.findById(compId)
-				.orElseThrow(() -> new NotFoundException("Подборка с id = " + compId + " не существует"));
+				.orElseThrow(() -> {
+					log.warn("Подборка с id: {} не найдена", compId);
+					return new NotFoundException("Подборка с id = " + compId + " не существует");
+				});
 	}
 
 	private List<Event> getEventsForCompilation(List<Long> eventIds) {
-		return eventIds == null || eventIds.isEmpty() ? new ArrayList<>() : eventRepository.findAllById(eventIds);
+		log.debug("Получение событий для подборки по id: {}", eventIds);
+		List<Event> events = eventIds == null || eventIds.isEmpty()
+				? new ArrayList<>()
+				: eventRepository.findAllById(eventIds);
+		log.debug("Найдено {} событий", events.size());
+		return events;
 	}
 
 	private void updateCompilationFields(Compilation compilation, CompilationDtoUpdate compilationDto) {
+		log.debug("Обновление полей подборки с id: {}", compilation.getId());
 		if (compilationDto.getEvents() != null && !compilationDto.getEvents().isEmpty()) {
-			compilation.setEvents(eventRepository.findAllById(compilationDto.getEvents()));
+			List<Event> events = eventRepository.findAllById(compilationDto.getEvents());
+			compilation.setEvents(events);
+			log.debug("Обновлены события подборки, количество: {}", events.size());
 		}
 		if (compilationDto.getPinned() != null) {
 			compilation.setPinned(compilationDto.getPinned());
+			log.debug("Обновлено поле pinned: {}", compilationDto.getPinned());
 		}
 		if (compilationDto.getTitle() != null) {
 			compilation.setTitle(compilationDto.getTitle());
+			log.debug("Обновлено поле title: {}", compilationDto.getTitle());
 		}
 	}
 }

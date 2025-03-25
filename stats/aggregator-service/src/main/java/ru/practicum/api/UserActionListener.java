@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.practicum.service.AggregatorService;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
+import ru.practicum.service.AggregatorService;
 
 @Slf4j
 @Component

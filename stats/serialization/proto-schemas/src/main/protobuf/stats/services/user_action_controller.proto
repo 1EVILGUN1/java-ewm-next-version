@@ -8,6 +8,6 @@ import "google/protobuf/empty.proto";
 import "stats/messages/user_action.proto";
 
 service UserActionController {
-    rpc CollectUserAction (stats.message.action.UserActionProto)
-        returns (google.protobuf.Empty);
+  rpc CollectUserAction (stats.message.action.UserActionProto)
+      returns (google.protobuf.Empty);
 }

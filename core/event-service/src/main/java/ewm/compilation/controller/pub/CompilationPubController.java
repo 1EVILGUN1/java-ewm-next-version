@@ -24,12 +24,16 @@ public class CompilationPubController {
                                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                         @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Получить список подборок по pinned --> {}, from --> {}, size --> {}", pinned, from, size);
-        return service.getCompilations(pinned, from, size);
+        List<CompilationDtoResponse> result = service.getCompilations(pinned, from, size);
+        log.info("Успешно получено {} подборок", result.size());
+        return result;
     }
 
     @GetMapping("/{compId}")
     public CompilationDtoResponse getCompilations(@PathVariable Long compId) {
-        log.info("Получить подбороку по compId --> {}", compId);
-        return service.getCompilation(compId);
+        log.info("Получить подборку по compId --> {}", compId);
+        CompilationDtoResponse result = service.getCompilation(compId);
+        log.info("Успешно получена подборка с id: {}", compId);
+        return result;
     }
 }

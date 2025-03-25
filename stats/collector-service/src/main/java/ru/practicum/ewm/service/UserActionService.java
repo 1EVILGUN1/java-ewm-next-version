@@ -13,10 +13,9 @@ import ru.practicum.ewm.stats.avro.UserActionAvro;
 @RequiredArgsConstructor
 public class UserActionService {
 
+    private final KafkaTemplate kafkaTemplate;
     @Value("${kafka.topic}")
     private String topic;
-
-    private final KafkaTemplate kafkaTemplate;
 
     public void collectUserAction(UserActionProto request) {
         UserActionAvro userActionAvro = UserActionMapper.mapProtoToUserActionAvro(request);

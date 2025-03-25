@@ -22,22 +22,36 @@ public class PublicEventController {
 
     @GetMapping
     public List<UpdatedEventDto> publicGetEvents(HttpServletRequest request, PublicGetEventRequestDto requestParams) {
-        log.info("Получить события, согласно устловиям -> {}", requestParams);
-        return service.publicGetEvents(requestParams, request);
+        log.info("Получить события, согласно условиям -> {}", requestParams);
+        List<UpdatedEventDto> result = service.publicGetEvents(requestParams, request);
+        log.info("Успешно получено {} событий", result.size());
+        return result;
     }
 
     @GetMapping("/{id}")
     public UpdatedEventDto publicGetEvent(@PathVariable Long id, HttpServletRequest request) {
-        return service.publicGetEvent(id, request);
+        String ip = request.getRemoteAddr();
+        String uri = request.getRequestURI();
+        log.info("Получение события с id: {}, IP: {}, URI: {}", id, ip, uri);
+        UpdatedEventDto result = service.publicGetEvent(id, request);
+        log.info("Событие с id: {} успешно получено", id);
+        return result;
     }
 
     @GetMapping("/recommendations")
     public List<RecommendationDto> getRecommendations(@RequestParam(defaultValue = "10") Long limit, HttpServletRequest request) {
-        return service.getRecommendations(limit, request);
+        String ip = request.getRemoteAddr();
+        log.info("Получение рекомендаций с лимитом: {}, IP: {}", limit, ip);
+        List<RecommendationDto> result = service.getRecommendations(limit, request);
+        log.info("Успешно получено {} рекомендаций", result.size());
+        return result;
     }
 
     @PutMapping("/{eventId}/like")
     public void saveLike(@PathVariable Long eventId, HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        log.info("Сохранение лайка для события eventId: {}, IP: {}", eventId, ip);
         service.saveLike(eventId, request);
+        log.info("Лайк для события eventId: {} успешно сохранён", eventId);
     }
 }

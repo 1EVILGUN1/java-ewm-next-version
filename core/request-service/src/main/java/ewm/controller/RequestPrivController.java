@@ -21,7 +21,9 @@ public class RequestPrivController {
     @GetMapping
     public List<RequestDto> getRequests(@PathVariable Long userId) {
         log.info("Получить запросы по userId --> {}", userId);
-        return service.getRequests(userId);
+        List<RequestDto> result = service.getRequests(userId);
+        log.info("Успешно получено {} запросов для userId: {}", result.size(), userId);
+        return result;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,13 +31,17 @@ public class RequestPrivController {
     public RequestDto createRequest(@PathVariable Long userId,
                                     @RequestParam Long eventId) {
         log.info("Создать запрос userId --> {}, eventId --> {}", userId, eventId);
-        return service.createRequest(userId, eventId);
+        RequestDto result = service.createRequest(userId, eventId);
+        log.info("Запрос успешно создан с id: {} для userId: {} и eventId: {}", result.getId(), userId, eventId);
+        return result;
     }
 
     @PatchMapping("/{requestId}/cancel")
     public RequestDto cancelRequest(@PathVariable Long userId,
                                     @PathVariable Long requestId) {
         log.info("Отменить запрос по userId --> {}, requestId --> {}", userId, requestId);
-        return service.cancelRequest(userId, requestId);
+        RequestDto result = service.cancelRequest(userId, requestId);
+        log.info("Запрос requestId: {} успешно отменён для userId: {}", requestId, userId);
+        return result;
     }
 }
