@@ -4,6 +4,7 @@ import ewm.dto.event.PublicGetEventRequestDto;
 import ewm.dto.event.RecommendationDto;
 import ewm.dto.event.UpdatedEventDto;
 import ewm.event.service.EventService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -21,7 +22,8 @@ public class PublicEventController {
     private final EventService service;
 
     @GetMapping
-    public List<UpdatedEventDto> publicGetEvents(@RequestHeader(USER_ID_HEADER) final long userId, PublicGetEventRequestDto requestParams) {
+    public List<UpdatedEventDto> publicGetEvents(@RequestHeader(USER_ID_HEADER) final long userId,
+                                                 @ModelAttribute @Valid PublicGetEventRequestDto requestParams) {
         log.info("Получить события, согласно условиям -> {}", requestParams);
         List<UpdatedEventDto> result = service.publicGetEvents(requestParams, userId);
         log.info("Успешно получено {} событий", result.size());
@@ -37,7 +39,8 @@ public class PublicEventController {
     }
 
     @GetMapping("/recommendations")
-    public List<RecommendationDto> getRecommendations(@RequestParam(defaultValue = "10") Long limit, @RequestHeader(USER_ID_HEADER) final long userId) {
+    public List<RecommendationDto> getRecommendations(@RequestParam(defaultValue = "10") Long limit,
+                                                      @RequestHeader(USER_ID_HEADER) final long userId) {
         log.info("Получение рекомендаций с лимитом: {}, пользователь: {}", limit, userId);
         List<RecommendationDto> result = service.getRecommendations(limit, userId);
         log.info("Успешно получено {} рекомендаций", result.size());
