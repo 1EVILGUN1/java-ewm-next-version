@@ -2,11 +2,9 @@ package ewm.event.service;
 
 import ewm.dto.event.*;
 import ewm.dto.request.RequestDto;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
-// Управление событиями
 public interface EventService {
     List<EventDto> getEvents(Long userId, Integer from, Integer size);
 
@@ -20,9 +18,9 @@ public interface EventService {
 
     UpdatedEventDto updateEvent(Long userId, UpdateEventDto eventDto, Long eventId);
 
-    List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, HttpServletRequest request);
+    List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, Long userId);
 
-    UpdatedEventDto publicGetEvent(Long eventId, HttpServletRequest request);
+    UpdatedEventDto publicGetEvent(Long eventId, Long userId);
 
     EventDto publicGetEvent(Long eventId);
 
@@ -31,6 +29,10 @@ public interface EventService {
     EventRequestStatusUpdateResult changeStatusEventRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest request);
 
     EventDto updateConfirmRequests(EventDto eventDto);
+
+    List<RecommendationDto> getRecommendations(Long limit, Long userId);
+
+    void saveLike(Long eventId, Long userId);
 
     EventDto getEventByInitiator(Long userId);
 }

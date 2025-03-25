@@ -17,6 +17,9 @@ public class UserServiceController implements UserClient {
 
     @Override
     public UserDto getUserById(Long userId) {
-        return service.getUserById(userId);
+        log.info("Получение пользователя по userId: {}", userId);
+        UserDto result = service.getUserById(userId);
+        log.info("Пользователь с userId: {} успешно получен", userId);
+        return result;
     }
 }

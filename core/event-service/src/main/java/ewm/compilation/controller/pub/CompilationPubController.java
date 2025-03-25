@@ -17,19 +17,23 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("compilations")
 public class CompilationPubController {
-    private final CompilationService compilationService;
+    private final CompilationService service;
 
     @GetMapping
     public List<CompilationDtoResponse> getCompilations(@RequestParam(required = false) Boolean pinned,
                                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                         @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Получить список подборок по pinned --> {}, from --> {}, size --> {}", pinned, from, size);
-        return compilationService.getCompilations(pinned, from, size);
+        List<CompilationDtoResponse> result = service.getCompilations(pinned, from, size);
+        log.info("Успешно получено {} подборок", result.size());
+        return result;
     }
 
     @GetMapping("/{compId}")
     public CompilationDtoResponse getCompilations(@PathVariable Long compId) {
-        log.info("Получить подбороку по compId --> {}", compId);
-        return compilationService.getCompilation(compId);
+        log.info("Получить подборку по compId --> {}", compId);
+        CompilationDtoResponse result = service.getCompilation(compId);
+        log.info("Успешно получена подборка с id: {}", compId);
+        return result;
     }
 }

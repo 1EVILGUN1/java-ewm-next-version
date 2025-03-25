@@ -50,30 +50,6 @@ services:
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
 
-  stats-server:
-    build: stats/stats-server
-    container_name: ewm-stats-server
-    ports:
-      - "9090:9090"
-    depends_on:
-      stats-db:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    networks:
-      - ewm-net
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm-stats
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
-      - SERVER_PORT=9090
-    healthcheck:
-      test: "curl --fail --silent localhost:9090/actuator/health | grep UP || exit 1"
-      timeout: 5s
-      interval: 15s
-      retries: 10
-
   stats-db:
     image: postgres:16.1
     container_name: postgres-ewm-stats-db
@@ -155,6 +131,65 @@ services:
       interval: 25s
       retries: 10
 
+  collector-service:
+    build: stats/collector-service
+    container_name: collector-service
+    depends_on:
+      ewm-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8085
+    healthcheck:
+      test: "curl --fail --silent localhost:8085/actuator/health | grep UP || exit 1"
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
+  aggregator-service:
+    build: stats/aggregator-service
+    container_name: ewm-aggregator-service
+    depends_on:
+      ewm-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8086
+    healthcheck:
+      test: "curl --fail --silent localhost:8086/actuator/health | grep UP || exit 1"
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
+  analyzer-service:
+    build: stats/analyzer-service
+    container_name: ewm-analyzer-service
+    depends_on:
+      ewm-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_stats
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8087
+    healthcheck:
+      test: "curl --fail --silent localhost:8087/actuator/health | grep UP || exit 1"
+      timeout: 5s
+      interval: 25s
+      retries: 10
 
   ewm-service:
     build: core/event-service
@@ -164,7 +199,7 @@ services:
         condition: service_healthy
       config-server:
         condition: service_healthy
-      stats-server:
+      collector-service:
         condition: service_healthy
     networks:
       - ewm-net
@@ -215,7 +250,40 @@ services:
         create database ewm_subscription;
         create database ewm_event;
         create database ewm_request;
+        create database ewm_stats;
         EOSQL
+
+  kafka:
+    image: confluentinc/confluent-local:7.4.3
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092" # for client connections
+      - "9101:9101" # JMX
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      CLUSTER_ID: 'K0EA9p0yEe6MkAAAAkKsEg'
+
+  kafka-init-topics:
+    image: confluentinc/confluent-local:7.4.3
+    container_name: kafka-init-topics
+    depends_on:
+      - kafka
+    command: "bash -c \
+                'kafka-topics --create --topic stats.user-actions.v1 \
+                             --partitions 1 --replication-factor 1 --if-not-exists \
+                             --bootstrap-server kafka:29092 && \
+                kafka-topics --create --topic stats.events-similarity.v1 \
+                             --partitions 1 --replication-factor 1 --if-not-exists \
+                             --bootstrap-server kafka:29092'"
+    init: true
 
 networks:
   ewm-net:

@@ -1,6 +1,6 @@
 package ewm.compilation.repository;
 
-import ewm.model.Compilation;
+import ewm.compilation.model.Compilation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

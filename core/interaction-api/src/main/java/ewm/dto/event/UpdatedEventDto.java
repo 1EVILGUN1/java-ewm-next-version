@@ -25,7 +25,7 @@ public class UpdatedEventDto {
     private Boolean requestModeration;
     private String state;
     private String title;
-    private Long views;
+    private Double rating;
     private CategoryDto category;
     private UserDto initiator;
     private LocationDto location;

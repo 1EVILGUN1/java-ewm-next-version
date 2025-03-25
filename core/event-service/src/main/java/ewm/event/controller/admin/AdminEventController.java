@@ -19,12 +19,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("admin/events")
 public class AdminEventController {
-    private final EventService eventService;
+    private final EventService service;
 
     @GetMapping
     public List<UpdatedEventDto> adminGetEvents(AdminGetEventRequestDto requestParams) {
-        log.info("Получить события, согласно устловиям -> {}", requestParams);
-        return eventService.adminGetEvents(requestParams);
+        log.info("Получить события, согласно условиям -> {}", requestParams);
+        List<UpdatedEventDto> result = service.adminGetEvents(requestParams);
+        log.info("Успешно получено {} событий", result.size());
+        return result;
     }
 
     @PatchMapping("/{eventId}")
@@ -33,6 +35,8 @@ public class AdminEventController {
         log.info("Изменить событие eventId = {}, поля -> {}", eventId, eventDto);
         EventValidate.updateEventDateValidate(eventDto, log);
         EventValidate.textLengthValidate(eventDto, log);
-        return eventService.adminChangeEvent(eventId, eventDto);
+        UpdatedEventDto result = service.adminChangeEvent(eventId, eventDto);
+        log.info("Событие с id: {} успешно обновлено", eventId);
+        return result;
     }
 }
