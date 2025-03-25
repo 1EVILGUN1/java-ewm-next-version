@@ -22,7 +22,7 @@ public class PublicEventController {
     private final EventService service;
 
     @GetMapping
-    public List<UpdatedEventDto> publicGetEvents(@RequestHeader(value = USER_ID_HEADER, required = false) final long userId,
+    public List<UpdatedEventDto> publicGetEvents(@RequestHeader(value = USER_ID_HEADER, required = false) Long userId,
                                                  @Valid PublicGetEventRequestDto requestParams) {
         log.info("Получить события, согласно условиям -> {}", requestParams);
         List<UpdatedEventDto> result = service.publicGetEvents(requestParams, userId);
@@ -31,7 +31,7 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public UpdatedEventDto publicGetEvent(@PathVariable Long id, @RequestHeader(value = USER_ID_HEADER, required = false) final long userId) {
+    public UpdatedEventDto publicGetEvent(@PathVariable Long id, @RequestHeader(value = USER_ID_HEADER, required = false) Long userId) {
         log.info("Получение события с id: {}, пользователь: {}", id, userId);
         UpdatedEventDto result = service.publicGetEvent(id, userId);
         log.info("Событие с id: {} успешно получено", id);
@@ -40,7 +40,7 @@ public class PublicEventController {
 
     @GetMapping("/recommendations")
     public List<RecommendationDto> getRecommendations(@RequestParam(defaultValue = "10") Long limit,
-                                                      @RequestHeader(value = USER_ID_HEADER, required = false) final long userId) {
+                                                      @RequestHeader(value = USER_ID_HEADER, required = false) Long userId) {
         log.info("Получение рекомендаций с лимитом: {}, пользователь: {}", limit, userId);
         List<RecommendationDto> result = service.getRecommendations(limit, userId);
         log.info("Успешно получено {} рекомендаций", result.size());
@@ -48,7 +48,7 @@ public class PublicEventController {
     }
 
     @PutMapping("/{eventId}/like")
-    public void saveLike(@PathVariable Long eventId, @RequestHeader(USER_ID_HEADER) final long userId) {
+    public void saveLike(@PathVariable Long eventId, @RequestHeader(USER_ID_HEADER) Long userId) {
         log.info("Сохранение лайка для события eventId: {}, пользователь: {}", eventId, userId);
         service.saveLike(eventId, userId);
         log.info("Лайк для события eventId: {} успешно сохранён", eventId);
