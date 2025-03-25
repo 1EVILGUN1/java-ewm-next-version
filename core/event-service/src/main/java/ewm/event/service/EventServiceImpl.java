@@ -147,6 +147,7 @@ public class EventServiceImpl implements EventService {
         collectUserActionAndUpdateRating(id, userId, event);
 
         UserDto initiator = userClient.getUserById(event.getInitiatorId());
+        collectUserActionAndUpdateRating(id, userId, event);
         UpdatedEventDto result = EventMapper.mapEventToUpdatedEventDto(event, initiator);
         log.info("Публичное событие id: {} успешно получено", id);
         return result;

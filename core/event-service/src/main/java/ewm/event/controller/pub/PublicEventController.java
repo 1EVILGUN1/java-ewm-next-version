@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("events")
 public class PublicEventController {
-    private final String USER_ID_HEADER = "X-EWM-USER-ID";
+    private static final String USER_ID_HEADER = "X-EWM-USER-ID";
     private final EventService service;
 
     @GetMapping
