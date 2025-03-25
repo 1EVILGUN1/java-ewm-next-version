@@ -1,0 +1,34 @@
+server:
+  port: 0
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+  sql:
+    init:
+      mode: always
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/ewm_stats
+    username: test
+    password: test
+
+grpc:
+  client:
+    hub-router:
+      address: 'static://localhost:59090'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+
+kafka:
+  bootstrap-server: localhost:9092
+  client-id: AnalyzerConsumer
+  group-id: some.group.id
+  topic: stats.user-actions.v1
+  topic-sums: stats.events-similarity.v1

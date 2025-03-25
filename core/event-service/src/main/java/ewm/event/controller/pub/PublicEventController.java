@@ -1,16 +1,14 @@
 package ewm.event.controller.pub;
 
 import ewm.dto.event.PublicGetEventRequestDto;
+import ewm.dto.event.RecommendationDto;
 import ewm.dto.event.UpdatedEventDto;
 import ewm.event.service.EventService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,5 +29,15 @@ public class PublicEventController {
     @GetMapping("/{id}")
     public UpdatedEventDto publicGetEvent(@PathVariable Long id, HttpServletRequest request) {
         return eventService.publicGetEvent(id, request);
+    }
+
+    @GetMapping("/recommendations")
+    public List<RecommendationDto> getRecommendations(@RequestParam(defaultValue = "10") Long limit, HttpServletRequest request) {
+        return eventService.getRecommendations(limit, request);
+    }
+
+    @PutMapping("/{eventId}/like")
+    public void saveLike(@PathVariable Long eventId, HttpServletRequest request) {
+        eventService.saveLike(eventId, request);
     }
 }

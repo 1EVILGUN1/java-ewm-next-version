@@ -26,11 +26,6 @@
             <artifactId>stats-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ewm</groupId>
-            <artifactId>stats-dto</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

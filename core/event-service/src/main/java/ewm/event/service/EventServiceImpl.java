@@ -1,6 +1,9 @@
 package ewm.event.service;
 
+import ewm.category.model.Category;
 import ewm.category.repository.CategoryRepository;
+import ewm.client.CollectorClient;
+import ewm.client.RecommendationsClient;
 import ewm.client.RequestOperations;
 import ewm.client.UserClient;
 import ewm.dto.event.*;
@@ -12,37 +15,38 @@ import ewm.enums.StateAction;
 import ewm.error.exception.ConflictException;
 import ewm.error.exception.NotFoundException;
 import ewm.error.exception.ValidationException;
+import ewm.event.model.Event;
 import ewm.event.repository.EventRepository;
 import ewm.mapper.EventMapper;
-import ewm.model.Category;
-import ewm.model.Event;
-import ewm.statistics.StatisticsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.grpc.stats.action.UserActionProto;
+import ru.practicum.ewm.grpc.stats.recomendations.RecommendedEventProto;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     private static final String EVENT_NOT_FOUND_MESSAGE = "Event not found";
+    private static final String USER_ID_HEADER = "X-EWM-USER-ID";
 
     private final EventRepository repository;
     private final CategoryRepository categoryRepository;
-    private final StatisticsService statisticsService;
     private final UserClient userClient;
     private final RequestOperations requestClient;
-    private final EventMapper mapper;
+    private final CollectorClient collectorClient;
+    private final RecommendationsClient recommendationsClient;
 
     @Override
     public List<EventDto> getEvents(Long userId, Integer from, Integer size) {
@@ -67,7 +71,7 @@ public class EventServiceImpl implements EventService {
     public UpdatedEventDto createEvent(Long userId, CreateEventDto eventDto) {
         UserDto user = userClient.getUserById(userId);
         Category category = getCategory(eventDto.getCategory());
-        Event event = mapper.mapCreateDtoToEvent(eventDto);
+        Event event = EventMapper.mapCreateDtoToEvent(eventDto);
         if (event.getPaid() == null) {
             event.setPaid(false);
         }
@@ -82,7 +86,7 @@ public class EventServiceImpl implements EventService {
         event.setCategory(category);
         event.setState(EventState.PENDING);
         Event newEvent = repository.save(event);
-        return mapper.mapEventToUpdatedEventDto(newEvent, userClient.getUserById(event.getInitiatorId()));
+        return EventMapper.mapEventToUpdatedEventDto(newEvent, userClient.getUserById(event.getInitiatorId()));
     }
 
     @Override
@@ -98,7 +102,7 @@ public class EventServiceImpl implements EventService {
         }
         updateEventFields(eventDto, foundEvent);
         Event saved = repository.save(foundEvent);
-        return mapper.mapEventToUpdatedEventDto(saved, userClient.getUserById(foundEvent.getInitiatorId()));
+        return EventMapper.mapEventToUpdatedEventDto(saved, userClient.getUserById(foundEvent.getInitiatorId()));
     }
 
     @Override
@@ -123,20 +127,8 @@ public class EventServiceImpl implements EventService {
                         requestParams.getSize())
         );
 
-        statisticsService.saveStats(request);
-        if (!events.isEmpty()) {
-            LocalDateTime oldestEventPublishedOn = events.stream()
-                    .min(Comparator.comparing(Event::getPublishedOn)).map(Event::getPublishedOn).stream()
-                    .findFirst().orElseThrow();
-            List<String> uris = getListOfUri(events, request.getRequestURI());
 
-            Map<Long, Long> views = statisticsService.getStats(oldestEventPublishedOn, LocalDateTime.now(), uris);
-            events
-                    .stream()
-                    .peek(event -> event.setViews(views.get(event.getId())));
-            events = repository.saveAll(events);
-        }
-        return mapper.mapToUpdatedEventDto(events);
+        return EventMapper.mapToUpdatedEventDto(events);
     }
 
     @Override
@@ -145,13 +137,23 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Событие не найдено");
         }
-        statisticsService.saveStats(request);
-        Long views = statisticsService.getStats(
-                event.getPublishedOn(), LocalDateTime.now(), List.of(request.getRequestURI())).get(id);
-        event.setViews(views);
-        event = repository.save(event);
+        UserActionProto userActionProto = UserActionProto.newBuilder()
+                .setEventId(id)
+                .setUserId(request.getIntHeader(USER_ID_HEADER))
+                .build();
+        try {
+            collectorClient.collectUserAction(userActionProto);
+            Stream<RecommendedEventProto> rating = recommendationsClient.getInteractionsCount(List.of(id));
+
+            if (rating.findFirst().isPresent()) {
+                event.setRating(rating.findFirst().get().getScore());
+                event = repository.save(event);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
         UserDto initiator = userClient.getUserById(event.getInitiatorId());
-        return mapper.mapEventToUpdatedEventDto(event, initiator);
+        return EventMapper.mapEventToUpdatedEventDto(event, initiator);
     }
 
     @Override
@@ -162,7 +164,7 @@ public class EventServiceImpl implements EventService {
             return null;
         }
         UserDto initiator = userClient.getUserById(event.getInitiatorId());
-        return mapper.mapEventToEventDto(event, initiator);
+        return EventMapper.mapEventToEventDto(event, initiator);
     }
 
     @Override
@@ -218,7 +220,7 @@ public class EventServiceImpl implements EventService {
                 PageRequest.of(requestParams.getFrom() / requestParams.getSize(),
                         requestParams.getSize())
         );
-        return mapper.mapToUpdatedEventDto(events);
+        return EventMapper.mapToUpdatedEventDto(events);
     }
 
     @Override
@@ -227,7 +229,7 @@ public class EventServiceImpl implements EventService {
         checkEventForUpdate(event, eventDto.getStateAction());
         Event updatedEvent = repository.save(prepareEventForUpdate(event, eventDto));
         UserDto initiator = userClient.getUserById(event.getInitiatorId());
-        UpdatedEventDto result = mapper.mapEventToUpdatedEventDto(updatedEvent, initiator);
+        UpdatedEventDto result = EventMapper.mapEventToUpdatedEventDto(updatedEvent, initiator);
         return result;
     }
 
@@ -235,18 +237,53 @@ public class EventServiceImpl implements EventService {
     public EventDto getEventByInitiator(Long userId) {
         log.info("Получение события по инициатору с ID: {}", userId);
         Event result = repository.findByInitiatorId(userId);
+        UserDto initiator = userClient.getUserById(userId);
         log.info("Событие для инициатора с ID {} успешно получено", userId);
-        return mapper.mapEventToEventDto(result);
+        return EventMapper.mapEventToEventDto(result, initiator);
     }
 
     public EventDto updateConfirmRequests(EventDto eventDto) {
-        Event event = mapper.mapToEvent(eventDto);
+        Event event = EventMapper.mapToEvent(eventDto);
         UserDto user = userClient.getUserById(event.getInitiatorId());
-        return mapper.mapEventToEventDto(repository.save(event), user);
+        return EventMapper.mapEventToEventDto(repository.save(event), user);
+    }
+
+    public List<RecommendationDto> getRecommendations(Long limit, HttpServletRequest request) {
+        try {
+            return recommendationsClient.getRecommendationsForUser(Long.parseLong(request.getHeader(USER_ID_HEADER)), limit)
+                    .map(x -> RecommendationDto.builder()
+                            .eventId(x.getEventId())
+                            .score(x.getScore())
+                            .build())
+                    .toList();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public void saveLike(Long eventId, HttpServletRequest request) {
+        Optional<Event> event = repository.findById(eventId);
+
+        Long userId = Long.parseLong(request.getHeader(USER_ID_HEADER));
+        long count = requestClient.getRequestsByEventId(eventId).stream()
+                .filter(x -> x.getRequester().equals(userId))
+                .count();
+        if (event.isEmpty() || event.get().getEventDate().isAfter(LocalDateTime.now()) || count == 0) {
+            throw new ValidationException("Нельзя поставить лайк, не посетив мероприятие");
+        }
+        try {
+            collectorClient.collectUserAction(UserActionProto.newBuilder()
+                    .setEventId(eventId)
+                    .setUserId(userId)
+                    .build());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     private EventDto eventToDto(Event event) {
-        return mapper.mapEventToEventDto(event, userClient.getUserById(event.getInitiatorId()));
+        return EventMapper.mapEventToEventDto(event, userClient.getUserById(event.getInitiatorId()));
     }
 
     private Event getEvent(Long eventId) {
@@ -315,6 +352,7 @@ public class EventServiceImpl implements EventService {
         return category.get();
     }
 
+
     private void updateEventFields(UpdateEventDto eventDto, Event foundEvent) {
         if (eventDto.getCategory() != null) {
             Category category = getCategory(eventDto.getCategory());
@@ -366,6 +404,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+
     private List<String> getListOfUri(List<Event> events, String uri) {
         return events.stream().map(Event::getId).map(id -> getUriForEvent(uri, id))
                 .collect(Collectors.toList());
@@ -374,6 +413,7 @@ public class EventServiceImpl implements EventService {
     private String getUriForEvent(String uri, Long eventId) {
         return uri + "/" + eventId;
     }
+
 
     private void checkRequestsStatus(List<RequestDto> requests) {
         Optional<RequestDto> confirmedReq = requests.stream()

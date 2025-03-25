@@ -61,12 +61,6 @@
             <artifactId>mapstruct</artifactId>
             <version>1.6.0.Beta2</version>
         </dependency>
-        <dependency>
-            <groupId>ewm</groupId>
-            <artifactId>stats-dto</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>

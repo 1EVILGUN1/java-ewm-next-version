@@ -1,15 +1,15 @@
 package ewm.category.service;
 
+import ewm.category.model.Category;
 import ewm.category.repository.CategoryRepository;
 import ewm.dto.category.CategoryDto;
 import ewm.dto.category.CreateCategoryDto;
 import ewm.error.exception.ConflictException;
 import ewm.error.exception.ExistException;
 import ewm.error.exception.NotFoundException;
+import ewm.event.model.Event;
 import ewm.event.repository.EventRepository;
 import ewm.mapper.CategoryMapper;
-import ewm.model.Category;
-import ewm.model.Event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
