@@ -116,7 +116,7 @@ public class EventServiceImpl implements EventService {
 
     // Публичные методы
     @Override
-    public List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, long userId) {
+    public List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, Long userId) {
         log.info("Получение публичных событий с параметрами: {}", requestParams);
         LocalDateTime start = requestParams.getRangeStart() != null ? requestParams.getRangeStart() : LocalDateTime.now();
         LocalDateTime end = requestParams.getRangeEnd() != null ? requestParams.getRangeEnd() : LocalDateTime.now().plusYears(10);
@@ -139,7 +139,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public UpdatedEventDto publicGetEvent(Long id, long userId) {
+    public UpdatedEventDto publicGetEvent(Long id, Long userId) {
         log.info("Получение публичного события id: {}, userId: {}", id, userId);
         Event event = getEvent(id);
         validatePublishedState(event);
@@ -246,7 +246,8 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-    public List<RecommendationDto> getRecommendations(Long limit, long userId) {
+    @Override
+    public List<RecommendationDto> getRecommendations(Long limit, Long userId) {
         log.info("Получение рекомендаций с лимитом: {}, пользователь: {}", limit, userId);
         try {
             List<RecommendationDto> result = recommendationsClient.getRecommendationsForUser(
@@ -264,7 +265,8 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    public void saveLike(Long eventId, long userId) {
+    @Override
+    public void saveLike(Long eventId, Long userId) {
         log.info("Сохранение лайка для события eventId: {}, пользователь: {}", eventId, userId);
         Optional<Event> eventOptional = repository.findById(eventId);
 

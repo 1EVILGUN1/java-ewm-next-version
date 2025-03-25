@@ -18,9 +18,9 @@ public interface EventService {
 
     UpdatedEventDto updateEvent(Long userId, UpdateEventDto eventDto, Long eventId);
 
-    List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, long userId);
+    List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, Long userId);
 
-    UpdatedEventDto publicGetEvent(Long eventId, long userId);
+    UpdatedEventDto publicGetEvent(Long eventId, Long userId);
 
     EventDto publicGetEvent(Long eventId);
 
@@ -30,9 +30,9 @@ public interface EventService {
 
     EventDto updateConfirmRequests(EventDto eventDto);
 
-    List<RecommendationDto> getRecommendations(Long limit, long userId);
+    List<RecommendationDto> getRecommendations(Long limit, Long userId);
 
-    void saveLike(Long eventId, long userId);
+    void saveLike(Long eventId, Long userId);
 
     EventDto getEventByInitiator(Long userId);
 }
