@@ -9,9 +9,9 @@ import java.util.List;
 
 @Mapper
 public interface CompilationMapper {
-	CompilationMapper INSTANCE = Mappers.getMapper(CompilationMapper.class);
+    CompilationMapper INSTANCE = Mappers.getMapper(CompilationMapper.class);
 
-	CompilationDtoResponse compilationToCompilationDtoResponse(Compilation compilation);
+    CompilationDtoResponse compilationToCompilationDtoResponse(Compilation compilation);
 
-	List<CompilationDtoResponse> mapListCompilations(List<Compilation> compilations);
+    List<CompilationDtoResponse> mapListCompilations(List<Compilation> compilations);
 }

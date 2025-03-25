@@ -18,23 +18,23 @@ import java.util.List;
 @Builder
 public class AdminGetEventRequestDto {
 
-	private List<Long> users;
+    private List<Long> users;
 
-	private List<EventState> states;
+    private List<EventState> states;
 
-	private List<Long> categories;
+    private List<Long> categories;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime rangeStart;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime rangeStart;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime rangeEnd;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime rangeEnd;
 
-	@PositiveOrZero
-	@Builder.Default
-	private int from = 0;
+    @PositiveOrZero
+    @Builder.Default
+    private int from = 0;
 
-	@Positive
-	@Builder.Default
-	private int size = 10;
+    @Positive
+    @Builder.Default
+    private int size = 10;
 }
