@@ -18,26 +18,26 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("events")
 public class PublicEventController {
-    private final EventService eventService;
+    private final EventService service;
 
     @GetMapping
     public List<UpdatedEventDto> publicGetEvents(HttpServletRequest request, PublicGetEventRequestDto requestParams) {
         log.info("Получить события, согласно устловиям -> {}", requestParams);
-        return eventService.publicGetEvents(requestParams, request);
+        return service.publicGetEvents(requestParams, request);
     }
 
     @GetMapping("/{id}")
     public UpdatedEventDto publicGetEvent(@PathVariable Long id, HttpServletRequest request) {
-        return eventService.publicGetEvent(id, request);
+        return service.publicGetEvent(id, request);
     }
 
     @GetMapping("/recommendations")
     public List<RecommendationDto> getRecommendations(@RequestParam(defaultValue = "10") Long limit, HttpServletRequest request) {
-        return eventService.getRecommendations(limit, request);
+        return service.getRecommendations(limit, request);
     }
 
     @PutMapping("/{eventId}/like")
     public void saveLike(@PathVariable Long eventId, HttpServletRequest request) {
-        eventService.saveLike(eventId, request);
+        service.saveLike(eventId, request);
     }
 }

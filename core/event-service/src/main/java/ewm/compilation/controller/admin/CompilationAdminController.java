@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("admin/compilations")
 public class CompilationAdminController {
-    private final CompilationService compilationService;
+    private final CompilationService service;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CompilationDtoResponse createCompilation(@RequestBody @Valid CompilationDto compilationDto) {
         log.info("Добавить подборку Compilation --> {}", compilationDto);
-        return compilationService.createCompilation(compilationDto);
+        return service.createCompilation(compilationDto);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{compId}")
     public void deleteCompilation(@PathVariable Long compId) {
         log.info("Удалить подборку по compId --> {}", compId);
-        compilationService.deleteCompilation(compId);
+        service.deleteCompilation(compId);
     }
 
     @PatchMapping("/{compId}")
     public CompilationDtoResponse updateCompilation(@PathVariable Long compId,
                                                     @RequestBody @Valid CompilationDtoUpdate compilationDto) {
         log.info("Обновить подборку по compId --> {}, подборка --> {}", compId, compilationDto);
-        return compilationService.updateCompilation(compId, compilationDto);
+        return service.updateCompilation(compId, compilationDto);
     }
 }

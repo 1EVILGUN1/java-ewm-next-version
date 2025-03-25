@@ -23,8 +23,5 @@ eureka:
     instance-id: "${spring.application.name}:${random.value}"
     leaseRenewalIntervalInSeconds: 10
 
-server:
-  port: 0
-
 logging.level:
   root: DEBUG

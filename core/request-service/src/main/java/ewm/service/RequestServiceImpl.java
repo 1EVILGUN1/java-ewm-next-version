@@ -27,14 +27,14 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
-    private final RequestRepository requestRepository;
+    private final RequestRepository repository;
     private final UserClient userClient;
     private final EventClient eventClient;
 
     @Override
     public List<RequestDto> getRequests(Long userId) {
         userClient.getUserById(userId);
-        return ReqMapper.mapListRequests(requestRepository.findAllByRequesterId(userId));
+        return ReqMapper.mapListRequests(repository.findAllByRequesterId(userId));
     }
 
     @Transactional
@@ -54,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
                         ? RequestStatus.CONFIRMED : RequestStatus.PENDING)
                 .eventId(eventId)
                 .build();
-        request = requestRepository.save(request);
+        request = repository.save(request);
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventClient.updateConfirmRequests(eventId, event);
@@ -70,7 +70,7 @@ public class RequestServiceImpl implements RequestService {
         if (!request.getRequesterId().equals(userId))
             throw new ConflictException("Другой пользователь не может отменить запрос");
         request.setStatus(RequestStatus.CANCELED);
-        requestRepository.save(request);
+        repository.save(request);
         EventDto event = eventClient.getEventById(request.getEventId());
         event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         eventClient.updateConfirmRequests(event.getId(), event);
@@ -79,16 +79,16 @@ public class RequestServiceImpl implements RequestService {
 
     public List<RequestDto> findAllById(List<Long> ids) {
 
-        return ReqMapper.mapListRequests(requestRepository.findAllById(ids));
+        return ReqMapper.mapListRequests(repository.findAllById(ids));
     }
 
     public List<RequestDto> findAllByEventId(Long eventId) {
-        return ReqMapper.mapListRequests(requestRepository.findAllByEventId(eventId));
+        return ReqMapper.mapListRequests(repository.findAllByEventId(eventId));
     }
 
     public RequestDto updateRequest(RequestDto requestDto) {
         Request request = ReqMapper.mapDtoToRequest(requestDto);
-        request = requestRepository.save(request);
+        request = repository.save(request);
         return ReqMapper.mapToRequestDto(request);
     }
 
@@ -101,7 +101,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void checkRequest(Long userId, EventDto event) {
-        if (!requestRepository.findAllByRequesterIdAndEventId(userId, event.getId()).isEmpty())
+        if (!repository.findAllByRequesterIdAndEventId(userId, event.getId()).isEmpty())
             throw new ConflictException("нельзя добавить повторный запрос");
         if (event.getInitiator().getId().equals(userId))
             throw new ConflictException("инициатор события не может добавить запрос на участие в своём событии");
@@ -112,7 +112,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private Request getRequest(Long requestId) {
-        Optional<Request> request = requestRepository.findById(requestId);
+        Optional<Request> request = repository.findById(requestId);
         if (request.isEmpty())
             throw new NotFoundException("Запроса с id = " + requestId.toString() + " не существует");
         return request.get();

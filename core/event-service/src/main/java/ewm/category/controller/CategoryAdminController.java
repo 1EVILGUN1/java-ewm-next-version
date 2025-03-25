@@ -12,22 +12,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("admin/categories")
 public class CategoryAdminController {
-    private final CategoryService categoryService;
+    private final CategoryService service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto addCategory(@RequestBody @Valid CreateCategoryDto createCategoryDto) {
-        return categoryService.add(createCategoryDto);
+        return service.add(createCategoryDto);
     }
 
     @DeleteMapping("/{categoryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long categoryId) {
-        categoryService.delete(categoryId);
+        service.delete(categoryId);
     }
 
     @PatchMapping("/{categoryId}")
     public CategoryDto updateCategory(@PathVariable Long categoryId, @RequestBody @Valid CreateCategoryDto createCategoryDto) {
-        return categoryService.update(categoryId, createCategoryDto);
+        return service.update(categoryId, createCategoryDto);
     }
 }
