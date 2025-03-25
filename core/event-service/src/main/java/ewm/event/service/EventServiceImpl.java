@@ -18,7 +18,6 @@ import ewm.error.exception.ValidationException;
 import ewm.event.model.Event;
 import ewm.event.repository.EventRepository;
 import ewm.mapper.EventMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +40,6 @@ public class EventServiceImpl implements EventService {
 
     // Константы
     private static final String EVENT_NOT_FOUND_MESSAGE = "Event not found";
-    private static final String USER_ID_HEADER = "X-EWM-USER-ID";
 
     // Зависимости
     private final EventRepository repository;
@@ -118,7 +116,7 @@ public class EventServiceImpl implements EventService {
 
     // Публичные методы
     @Override
-    public List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, HttpServletRequest request) {
+    public List<UpdatedEventDto> publicGetEvents(PublicGetEventRequestDto requestParams, long userId) {
         log.info("Получение публичных событий с параметрами: {}", requestParams);
         LocalDateTime start = requestParams.getRangeStart() != null ? requestParams.getRangeStart() : LocalDateTime.now();
         LocalDateTime end = requestParams.getRangeEnd() != null ? requestParams.getRangeEnd() : LocalDateTime.now().plusYears(10);
@@ -141,12 +139,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public UpdatedEventDto publicGetEvent(Long id, HttpServletRequest request) {
-        log.info("Получение публичного события id: {}, IP: {}, URI: {}", id, request.getRemoteAddr(), request.getRequestURI());
+    public UpdatedEventDto publicGetEvent(Long id, long userId) {
+        log.info("Получение публичного события id: {}, userId: {}", id, userId);
         Event event = getEvent(id);
         validatePublishedState(event);
 
-        collectUserActionAndUpdateRating(id, request, event);
+        collectUserActionAndUpdateRating(id, userId, event);
 
         UserDto initiator = userClient.getUserById(event.getInitiatorId());
         UpdatedEventDto result = EventMapper.mapEventToUpdatedEventDto(event, initiator);
@@ -247,11 +245,11 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-    public List<RecommendationDto> getRecommendations(Long limit, HttpServletRequest request) {
-        log.info("Получение рекомендаций с лимитом: {}, пользователь: {}", limit, request.getHeader(USER_ID_HEADER));
+    public List<RecommendationDto> getRecommendations(Long limit, long userId) {
+        log.info("Получение рекомендаций с лимитом: {}, пользователь: {}", limit, userId);
         try {
             List<RecommendationDto> result = recommendationsClient.getRecommendationsForUser(
-                            Long.parseLong(request.getHeader(USER_ID_HEADER)), limit)
+                            (userId), limit)
                     .map(x -> RecommendationDto.builder()
                             .eventId(x.getEventId())
                             .score(x.getScore())
@@ -265,10 +263,9 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    public void saveLike(Long eventId, HttpServletRequest request) {
-        log.info("Сохранение лайка для события eventId: {}, пользователь: {}", eventId, request.getHeader(USER_ID_HEADER));
+    public void saveLike(Long eventId, long userId) {
+        log.info("Сохранение лайка для события eventId: {}, пользователь: {}", eventId, userId);
         Optional<Event> eventOptional = repository.findById(eventId);
-        Long userId = Long.parseLong(request.getHeader(USER_ID_HEADER));
 
         validateLikeConditions(eventOptional, eventId, userId);
 
@@ -319,11 +316,11 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void collectUserActionAndUpdateRating(Long eventId, HttpServletRequest request, Event event) {
+    private void collectUserActionAndUpdateRating(Long eventId, long userId, Event event) {
         log.debug("Сбор действий пользователя и обновление рейтинга для события id: {}", eventId);
         UserActionProto userActionProto = UserActionProto.newBuilder()
                 .setEventId(eventId)
-                .setUserId(request.getIntHeader(USER_ID_HEADER))
+                .setUserId(userId)
                 .build();
         try {
             collectorClient.collectUserAction(userActionProto);

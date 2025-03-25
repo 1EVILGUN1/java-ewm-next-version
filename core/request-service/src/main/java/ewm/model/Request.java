@@ -2,19 +2,20 @@ package ewm.model;
 
 import ewm.enums.RequestStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "requests")
-@Data
-@Builder(toBuilder = true)
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder(toBuilder = true)
 public class Request {
 
     @Id
@@ -29,4 +30,19 @@ public class Request {
     private Long requesterId;
 
     private RequestStatus status;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass() && !(o instanceof HibernateProxy)) return false;
+        Request that = o instanceof HibernateProxy
+                ? (Request) ((HibernateProxy) o).getHibernateLazyInitializer().getImplementation()
+                : (Request) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? Objects.hash(id) : System.identityHashCode(this);
+    }
 }
